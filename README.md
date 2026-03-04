@@ -1,0 +1,1 @@
+currently working on this project. the aim is to develop a Cloud-native event processing platform demonstrating REST APIs, Docker containerisation, Kubernetes orchestration, CI/CD with GitHub Actions, infrastructure provisioning with Terraform on AWS (EKS), autoscaling, monitoring with Prometheus & Grafana, and centralized logging.
