@@ -1,13 +1,29 @@
 from flask import Flask, request, jsonify
 import os
 import psycopg
+import time
 
 app = Flask(__name__)
 
 
+
+# Wait for the database to be ready before starting the app. 
+# This is important when running in Docker Compose, as the app may start before the database is ready.
+# So it retries to connect to the database a few times with a delay in between .
+def wait_for_db(max_retries=20, delay=1):
+    for i in range(max_retries):
+        try:
+            with get_db_connection() as conn:
+                return
+        except Exception as e:
+            print(f"DB not ready yet ({i+1}/{max_retries}): {e}")
+            time.sleep(delay)
+    raise RuntimeError("Database not ready after retries")
+
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql://app:apppassword@localhost:5432/events"
+    # changed from localhost to db, which is the hostname of the database service in Docker Compose
+    "postgresql://app:apppassword@db:5432/events"
 )
 
 
@@ -25,7 +41,8 @@ def init_db():
                     username TEXT NOT NULL
                 )
             """)
-
+            
+wait_for_db()
 init_db()
 
 # Health check endpoint

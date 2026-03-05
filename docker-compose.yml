@@ -1,4 +1,5 @@
 services:
+
   db:
     image: postgres:16
     environment:
@@ -14,6 +15,16 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
+  api:
+    build: ./events-api
+    environment:
+      DATABASE_URL: postgresql://app:apppassword@db:5432/events
+    ports:
+      - "5000:5000"
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   pgdata:
