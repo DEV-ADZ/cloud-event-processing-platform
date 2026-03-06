@@ -56,7 +56,27 @@ init_db()
 
 @app.get("/health")
 def health():
-    return jsonify({"status": "ok", "instance": INSTANCE_ID}), 200
+    return jsonify({
+        "status": "ok",
+        "pod": socket.gethostname()
+    }), 200
+    
+@app.get("/ready")
+def ready():
+    try:
+        with pool.connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT 1;")
+        return jsonify({
+            "ready": True,
+            "pod": socket.gethostname()
+        }), 200
+    except Exception as e:
+        return jsonify({
+            "ready": False,
+            "error": str(e),
+            "pod": socket.gethostname()
+        }), 503
 
 @app.post("/events")
 def create_event():

@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: events-api
 spec:
-  replicas: 2
+  replicas: 5
   selector:
     matchLabels:
       app: events-api
@@ -20,3 +20,21 @@ spec:
           env:
             - name: DATABASE_URL
               value: "postgresql://app:apppassword@postgres-postgresql:5432/events"
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 3
