@@ -13,9 +13,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -r ./events-api/requirements.txt
+
       - name: Set up Docker
         uses: docker/setup-buildx-action@v3
 
       - name: Build Docker image
         run: |
-          docker build -t events-api:ci ./events-api
+          docker build -t events-api:${{ github.sha }} ./events-api
+
+      - name: Update Kubernetes deployment image
+        run: |
+          sed -i "s|image: events-api:.*|image: events-api:${{ github.sha }}|g" k8s/api-deployment.yaml
+
+      - name: Show updated deployment file
+        run: |
+          cat k8s/api-deployment.yaml
