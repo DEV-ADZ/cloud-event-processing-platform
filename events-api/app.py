@@ -52,7 +52,7 @@ def init_db():
         conn.commit()
 
 wait_for_db()
-init_db()
+init_db() 
 
 @app.get("/health")
 def health():
