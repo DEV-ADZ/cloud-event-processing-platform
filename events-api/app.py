@@ -3,8 +3,15 @@ import os
 import time
 import socket
 from psycopg_pool import ConnectionPool
+from prometheus_flask_exporter import PrometheusMetrics
+
 
 app = Flask(__name__)
+
+# Set up Prometheus metrics for the Flask app. This will monitor the app's performance and usage.
+metrics = PrometheusMetrics(app)
+metrics.info("app_info", "Application info", version="1.0")
+
 
 # Use the hostname as the instance ID for logging purposes. 
 # This is useful when running multiple instances of the app in a containerised environment.
@@ -109,4 +116,4 @@ def list_events():
     return jsonify([{"id": r[0], "type": r[1], "user": r[2]} for r in rows]), 200
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=False)
