@@ -1,0 +1,22 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: events-api-alerts
+  namespace: events
+  labels:
+    release: monitoring
+spec:
+  groups:
+    - name: events.rules
+      rules:
+        - alert: HighRequestLatency
+          expr: |
+            sum(rate(flask_http_request_duration_seconds_sum{job="events-api"}[1m]))
+            /
+            sum(rate(flask_http_request_duration_seconds_count{job="events-api"}[1m])) > 1
+          for: 30s
+          labels:
+            severity: warning
+          annotations:
+            summary: "detected high latency"
+            description: "latency for events-api is above 1 second for 30 seconds."
