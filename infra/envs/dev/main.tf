@@ -11,3 +11,21 @@ module "vpc" {
   project = var.project
   env     = var.env
 }
+
+module "ecr" {
+  source       = "../../modules/ecr"
+  project      = var.project
+  env          = var.env
+  repositories = ["api"]
+}
+
+module "iam" {
+  source  = "../../modules/iam"
+  project = var.project
+  env     = var.env
+
+  aws_region    = var.aws_region
+  github_owner  = "DEV-ADZ"
+  github_repo   = "cloud-event-processing-platform"
+  github_branch = "main"
+}
