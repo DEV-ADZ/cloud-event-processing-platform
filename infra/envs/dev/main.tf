@@ -29,3 +29,19 @@ module "iam" {
   github_repo   = "cloud-event-processing-platform"
   github_branch = "main"
 }
+
+
+module "eks" {
+  source = "../../modules/eks"
+
+  project = var.project
+  env     = var.env
+
+  vpc_id = module.vpc.vpc_id
+
+  private_subnet_ids = module.vpc.private_subnet_ids
+  public_subnet_ids  = module.vpc.public_subnet_ids
+
+  cluster_role_arn = module.iam.eks_cluster_role_arn
+  node_role_arn    = module.iam.eks_node_role_arn
+}
