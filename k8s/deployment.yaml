@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: events-api
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: events-api
+  template:
+    metadata:
+      labels:
+        app: events-api
+    spec:
+      containers:
+      - name: events-api
+        image: 596517178555.dkr.ecr.eu-west-1.amazonaws.com/cloud-event-processing-platform-dev-api:dev
+        ports:
+        - containerPort: 5000
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: events-api-db
+              key: DATABASE_URL

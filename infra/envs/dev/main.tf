@@ -24,10 +24,12 @@ module "iam" {
   project = var.project
   env     = var.env
 
-  aws_region    = var.aws_region
-  github_owner  = "DEV-ADZ"
-  github_repo   = "cloud-event-processing-platform"
-  github_branch = "main"
+  aws_region        = var.aws_region
+  github_owner      = "DEV-ADZ"
+  github_repo       = "cloud-event-processing-platform"
+  github_branch     = "main"
+  oidc_provider_url = "https://oidc.eks.eu-west-1.amazonaws.com/id/9E10EF78672CDC65A96F09790DA54B82"
+
 }
 
 

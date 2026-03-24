@@ -7,7 +7,6 @@ resource "aws_vpc" "this" {
     Name = "${var.project}-${var.env}-vpc"
   }
 }
-
 resource "aws_subnet" "public_1" {
   vpc_id                  = aws_vpc.this.id
   cidr_block              = "10.0.1.0/24"
@@ -15,7 +14,9 @@ resource "aws_subnet" "public_1" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "${var.project}-${var.env}-public-1"
+    Name                                         = "${var.project}-${var.env}-public-1"
+    "kubernetes.io/role/elb"                     = "1"
+    "kubernetes.io/cluster/${var.project}-${var.env}-eks" = "shared"
   }
 }
 
@@ -26,7 +27,9 @@ resource "aws_subnet" "public_2" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "${var.project}-${var.env}-public-2"
+    Name                                         = "${var.project}-${var.env}-public-2"
+    "kubernetes.io/role/elb"                     = "1"
+    "kubernetes.io/cluster/${var.project}-${var.env}-eks" = "shared"
   }
 }
 
@@ -36,7 +39,9 @@ resource "aws_subnet" "private_1" {
   availability_zone = "eu-west-1a"
 
   tags = {
-    Name = "${var.project}-${var.env}-private-1"
+    Name                                                  = "${var.project}-${var.env}-private-1"
+    "kubernetes.io/role/internal-elb"                     = "1"
+    "kubernetes.io/cluster/${var.project}-${var.env}-eks" = "shared"
   }
 }
 
@@ -46,7 +51,9 @@ resource "aws_subnet" "private_2" {
   availability_zone = "eu-west-1b"
 
   tags = {
-    Name = "${var.project}-${var.env}-private-2"
+    Name                                                  = "${var.project}-${var.env}-private-2"
+    "kubernetes.io/role/internal-elb"                     = "1"
+    "kubernetes.io/cluster/${var.project}-${var.env}-eks" = "shared"
   }
 }
 
