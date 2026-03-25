@@ -1,0 +1,19 @@
+# This file contains the Helm values for the PostgreSQL database
+
+auth:
+  username: app
+  password: apppassword
+  database: events
+
+primary:
+  persistence:
+    enabled: true
+    storageClass: ebs-gp3
+    size: 8Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi

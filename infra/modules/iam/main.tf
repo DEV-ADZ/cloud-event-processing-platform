@@ -50,7 +50,6 @@ resource "aws_iam_role_policy_attachment" "eks_cni_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
 }
 
-
 data "aws_iam_policy_document" "github_actions_assume_role" {
   statement {
     actions = ["sts:AssumeRoleWithWebIdentity"]
@@ -78,16 +77,10 @@ data "aws_iam_policy_document" "github_actions_assume_role" {
   }
 }
 
-
-
-
 resource "aws_iam_role" "github_actions_ecr_push_role" {
   name               = "${var.project}-${var.env}-gha-ecr-push-role"
   assume_role_policy = data.aws_iam_policy_document.github_actions_assume_role.json
 }
-
-
-
 
 data "aws_iam_policy_document" "github_actions_ecr_push_policy" {
   statement {
@@ -122,54 +115,3 @@ resource "aws_iam_role_policy_attachment" "github_actions_ecr_push_attach" {
   role       = aws_iam_role.github_actions_ecr_push_role.name
   policy_arn = aws_iam_policy.github_actions_ecr_push_policy.arn
 }
-
-
-resource "aws_iam_policy" "alb_controller" {
-  name   = "${var.project}-${var.env}-alb-controller-policy"
-  policy = file("${path.module}/alb-controller-policy.json")
-}
-
-data "aws_caller_identity" "current" {}
-
-locals {
-  oidc_provider_hostpath = replace(var.oidc_provider_url, "https://", "")
-}
-
-data "aws_iam_policy_document" "alb_assume_role" {
-  statement {
-    actions = ["sts:AssumeRoleWithWebIdentity"]
-
-    principals {
-      type = "Federated"
-      identifiers = [
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/${local.oidc_provider_hostpath}"
-      ]
-    }
-
-    condition {
-      test     = "StringEquals"
-      variable = "${local.oidc_provider_hostpath}:sub"
-      values   = ["system:serviceaccount:kube-system:aws-load-balancer-controller"]
-    }
-
-    condition {
-      test     = "StringEquals"
-      variable = "${local.oidc_provider_hostpath}:aud"
-      values   = ["sts.amazonaws.com"]
-    }
-  }
-}
-
-
-resource "aws_iam_role" "alb_controller" {
-  name               = "${var.project}-${var.env}-alb-controller-role"
-  assume_role_policy = data.aws_iam_policy_document.alb_assume_role.json
-}
-
-
-resource "aws_iam_role_policy_attachment" "alb_controller_attach" {
-  role       = aws_iam_role.alb_controller.name
-  policy_arn = aws_iam_policy.alb_controller.arn
-}
-
-

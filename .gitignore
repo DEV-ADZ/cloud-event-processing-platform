@@ -1,8 +1,57 @@
+```gitignore
+# =========================
+# Python
+# =========================
 venv/
+.venv/
 **/__pycache__/
 **/*.pyc
+**/*.pyo
+**/*.pyd
 **/*.db
+
+# =========================
+# Environment / secrets
+# =========================
 .env
+.env.*
+!.env.example
+
+# =========================
+# Terraform
+# =========================
+**/.terraform/
 **/.terraform/*
-**/terraform.tfstate*
+**/terraform.tfstate
+**/terraform.tfstate.*
 **/crash.log
+**/crash.*.log
+**/.terraform.lock.hcl
+
+# =========================
+# Kubernetes / local config
+# =========================
+.kube/
+
+# =========================
+# Logs
+# =========================
+*.log
+
+# =========================
+# OS files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# IDEs / editors
+# =========================
+.vscode/
+.idea/
+
+# =========================
+# Misc
+# =========================
+*.tmp
+*.bak

@@ -22,7 +22,3 @@ variable "github_branch" {
   type    = string
   default = "main"
 }
-
-variable "oidc_provider_url" {
-  type = string
-}

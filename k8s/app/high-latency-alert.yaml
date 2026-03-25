@@ -4,7 +4,7 @@ metadata:
   name: events-api-alerts
   namespace: events
   labels:
-    release: monitoring
+    release: kube-prometheus-stack
 spec:
   groups:
     - name: events.rules

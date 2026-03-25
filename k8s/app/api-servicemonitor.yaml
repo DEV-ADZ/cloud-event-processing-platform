@@ -2,12 +2,16 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: events-api-monitor
+  namespace: events
   labels:
-    release: monitoring
+    release: kube-prometheus-stack
 spec:
   selector:
     matchLabels:
       app: events-api
+  namespaceSelector:
+    matchNames:
+      - events
   endpoints:
     - port: http
       path: /metrics
