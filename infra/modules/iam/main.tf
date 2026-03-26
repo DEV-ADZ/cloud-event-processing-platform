@@ -104,6 +104,15 @@ data "aws_iam_policy_document" "github_actions_ecr_push_policy" {
       "arn:aws:ecr:${var.aws_region}:596517178555:repository/${var.project}-${var.env}-api"
     ]
   }
+
+  statement {
+    actions = [
+      "eks:DescribeCluster"
+    ]
+    resources = [
+      "arn:aws:eks:${var.aws_region}:596517178555:cluster/${var.project}-${var.env}-eks"
+    ]
+  }
 }
 
 resource "aws_iam_policy" "github_actions_ecr_push_policy" {
