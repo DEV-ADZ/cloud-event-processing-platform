@@ -1,0 +1,71 @@
+name: Deploy to EKS
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+      ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+      EKS_CLUSTER_NAME: ${{ vars.EKS_CLUSTER_NAME }}
+      DEPLOYMENT_NAME: ${{ vars.DEPLOYMENT_NAME }}
+      DEPLOYMENT_NAMESPACE: ${{ vars.DEPLOYMENT_NAMESPACE }}
+      CONTAINER_NAME: ${{ vars.CONTAINER_NAME }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Configure AWS credentials with OIDC
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_GHA_ROLE_ARN }}
+
+      - name: Log in to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          $IMAGE_URI="${env:AWS_ACCOUNT_ID}.dkr.ecr.${env:AWS_REGION}.amazonaws.com/${env:ECR_REPOSITORY}:${env:IMAGE_TAG}"
+          docker build -t $IMAGE_URI ./events-api
+          docker push $IMAGE_URI
+          "IMAGE_URI=$IMAGE_URI" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        shell: pwsh
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: latest
+
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig --region $env:AWS_REGION --name $env:EKS_CLUSTER_NAME
+        shell: pwsh
+
+      - name: Deploy new image to EKS
+        run: |
+          kubectl set image deployment/$env:DEPLOYMENT_NAME `
+            $env:CONTAINER_NAME=$env:IMAGE_URI `
+            -n $env:DEPLOYMENT_NAMESPACE
+        shell: pwsh
+
+      - name: Wait for rollout
+        run: |
+          kubectl rollout status deployment/$env:DEPLOYMENT_NAME -n $env:DEPLOYMENT_NAMESPACE --timeout=300s
+        shell: pwsh
+
+      - name: Verify running pods
+        run: |
+          kubectl get pods -n $env:DEPLOYMENT_NAMESPACE
+        shell: pwsh
